@@ -22,7 +22,5 @@ public class Product {
     private Integer price;
     private Integer stockQuantity; // Inventario
     private String category; // Juego, Consola, Accesorio
-    private String platform; // PS5, PC, Switch
-    private String genre; // RPG, FPS, etc.
     private String imageUrl; // URL de la imagen del producto
 }

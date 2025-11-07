@@ -27,10 +27,19 @@ public class SecurityConfig {
                 // Deshabilita CSRF
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        // Permite acceso libre a autenticación y consola H2
-                        .requestMatchers("/api/auth/**", "/h2-console/**").permitAll()
 
-                        // CAMBIO 1: Uso de HttpMethod.GET para especificar el método
+                        // CAMBIO CLAVE AQUI: Añadir los patrones de Swagger UI/SpringDoc
+                        .requestMatchers(
+                                "/",
+                                "/api/auth/**",
+                                "/h2-console/**",
+                                // Patrones de SpringDoc/Swagger UI:
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html"
+                        ).permitAll()
+
+                        // Permite acceso libre solo a GET /api/products
                         .requestMatchers(HttpMethod.GET, "/api/products").permitAll()
 
                         // Cualquier otra solicitud requiere autenticación
