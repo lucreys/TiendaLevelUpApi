@@ -2,19 +2,19 @@ package com.example.TiendaLevelUp.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod; // Importación necesaria para HttpMethod
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
-    // 1. Define el Codificador de Contraseñas (PasswordEncoder)
+    // 1. Define el Codificador de Contraseñas (BCrypt)
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -24,16 +24,21 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                // Deshabilita CSRF (típico en APIs REST sin cookies)
+                // Deshabilita CSRF
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        // Permite acceso libre a los endpoints de autenticación
-                        .requestMatchers(new AntPathRequestMatcher("/api/auth/**")).permitAll()
-                        // Permite acceso libre a los endpoints de productos para GET
-                        .requestMatchers(new AntPathRequestMatcher("/api/products", "GET")).permitAll()
-                        // Cualquier otra solicitud requiere autenticación (login)
+                        // Permite acceso libre a autenticación y consola H2
+                        .requestMatchers("/api/auth/**", "/h2-console/**").permitAll()
+
+                        // CAMBIO 1: Uso de HttpMethod.GET para especificar el método
+                        .requestMatchers(HttpMethod.GET, "/api/products").permitAll()
+
+                        // Cualquier otra solicitud requiere autenticación
                         .anyRequest().authenticated()
                 );
+
+        // CAMBIO 2: La forma correcta de deshabilitar frameOptions
+        http.headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable()));
 
         return http.build();
     }
